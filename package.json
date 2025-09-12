@@ -1,6 +1,7 @@
 {
 	"name": "panekit",
-	"version": "0.0.1",
+	"description": "Window Manager toolkit for Svelte 5",
+	"version": "0.1.0",
 	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev --host",
@@ -61,10 +62,17 @@
 		"vite": "^7.0.4"
 	},
 	"keywords": [
-		"svelte"
+		"svelte",
+		"windows",
+		"panes",
+		"window manager",
+		"stacking",
+		"svelte5",
+		"resizeable",
+		"draggable"
 	],
 	"dependencies": {
-		"@dnd-kit-svelte/svelte": "^0.1.3",
-		"@neodrag/svelte": "^3.0.0-next.8"
+		"@neodrag/svelte": "^3.0.0-next.8",
+		"runed": "^0.31.1"
 	}
 }

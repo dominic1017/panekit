@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { useDraggable } from '@dnd-kit-svelte/svelte';
-
-	let { ref } = useDraggable({ id: crypto.randomUUID() });
+	import { Pane } from '$lib/index.js';
 </script>
 
-<button {@attach ref}>Hello world</button>
+<Pane.Root class="rounded-md border border-gray-700 shadow-md">
+	<Pane.Handle>Handle</Pane.Handle>
+	<Pane.Content>Content</Pane.Content>
+</Pane.Root>

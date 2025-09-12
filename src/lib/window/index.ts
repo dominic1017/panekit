@@ -1,16 +1,13 @@
-import Root from './window.svelte';
-import DndKitRoot from './window-dndkit.svelte';
-import Handle from './window-handle.svelte';
-import Content from './window-content.svelte';
+import Root from './pane.svelte';
+import Handle from './pane-handle.svelte';
+import Content from './pane-content.svelte';
 
 export {
 	Root,
-	DndKitRoot,
 	Content,
 	Handle,
 	//
-	Root as Window,
-	DndKitRoot as WindowDndKit,
-	Content as WindowContent,
-	Handle as WindowHandle
+	Root as Pane,
+	Content as PaneContent,
+	Handle as PaneHandle
 };

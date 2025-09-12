@@ -8,11 +8,11 @@
 		instances,
 		position
 	} from '@neodrag/svelte';
-	import { useWM, WindowState } from '../windows.svelte.js';
-	import { onMount } from 'svelte';
+	import { usePM, PaneState } from '../pane-manager.svelte.js';
 	import type { ControlsPluginData } from '../types.js';
-	import { resize } from '../resize.js';
 	import type { WithChildren, WithElementRef, HTMLDivAttributes } from '../utils.js';
+	import { resize } from '$lib/resize.svelte.js';
+	import { onMount } from 'svelte';
 
 	type Props = WithChildren<WithElementRef<HTMLDivAttributes, HTMLDivElement>> & {
 		size?: { width: number; height: number };
@@ -25,24 +25,38 @@
 		...restProps
 	}: Props = $props();
 
-	let thisWindow = $state<WindowState>();
+	let thisPane = $state<PaneState>();
 	let handleRef = $state<HTMLDivElement | null>(null);
 	let contentRef = $state<HTMLDivElement | null>(null);
+	let ready = $state(false);
+	let centerPos =
+		'window' in globalThis
+			? { x: (window.innerWidth - size.width) / 2, y: (window.innerHeight - size.height) / 2 }
+			: null;
 
-	const wm = useWM();
+	const wm = usePM();
 
 	onMount(() => {
 		if (ref) {
-			thisWindow = new WindowState({ ref });
-			wm.addWindow(() => thisWindow!);
-			handleRef = ref.querySelector('[data-window-handle]');
-			contentRef = ref.querySelector('[data-window-content]');
+			thisPane = new PaneState({ ref });
+			wm.addPane(() => thisPane!);
+			handleRef = ref.querySelector('[data-pane-handle]');
+			contentRef = ref.querySelector('[data-pane-content]');
+			ready = true;
 		}
 	});
 
-	let elementPosition = $state({ x: 50, y: 50 });
+	$effect(() => {
+		if (ref && thisPane) {
+			ref.style.zIndex = thisPane.focused ? '100000' : '10';
+		}
+	});
 
-	const positionComp = Compartment.of(() => position({ current: elementPosition }));
+	let elementPosition = $state<{ x: number; y: number }>();
+
+	const positionComp = Compartment.of(() => {
+		return position({ current: elementPosition, default: centerPos });
+	});
 	const eventsComp = Compartment.of(() =>
 		events({
 			onDrag: (data) => {
@@ -54,25 +68,19 @@
 	function recomputeDraggableZones() {
 		if (ref && instances.has(ref)) {
 			const data: ControlsPluginData = instances.get(ref)!.states.get('neodrag:controls');
-			console.log(data.allow_zones);
 			const { allow_zones, block_zones } = data.compute_zones();
 			data.allow_zones = allow_zones;
 			data.block_zones = block_zones;
 		}
 	}
-
-	$effect(() => {
-		if (ref && thisWindow) {
-			ref.style.zIndex = thisWindow.focused ? '100000' : '10';
-		}
-	});
 </script>
 
 <div
 	{...restProps}
+	hidden={!ready}
 	role="dialog"
 	tabindex="-1"
-	data-window=""
+	data-pane=""
 	style={`width: ${size.width}px; height: ${size.height}px;`}
 	{@attach draggable(() => [
 		positionComp,
@@ -85,18 +93,17 @@
 	{@attach resize({
 		minWidth: size.width,
 		minHeight: size.height,
+		position: elementPosition,
 		onResizeEnd: () => {
 			recomputeDraggableZones();
 		},
-		currentPosition: () => elementPosition,
-		onPositionChange(x, y) {
-			elementPosition = { x, y };
-		},
-		invisibleHandles: true
+		onPositionChange(pos) {
+			elementPosition = pos;
+		}
 	})}
 	onmousedown={(e) => {
 		e.stopPropagation();
-		wm.focusWindow(thisWindow?.id ?? '');
+		wm.focusPane(thisPane?.id ?? '');
 		ref?.focus();
 	}}
 	bind:this={ref}

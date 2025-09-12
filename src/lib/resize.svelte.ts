@@ -1,20 +1,21 @@
 import type { Attachment } from 'svelte/attachments';
+import { extract, type MaybeGetter } from 'runed';
 
 type ResizeHandle = 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw';
 
 interface ResizeOptions {
-	minWidth?: number;
-	minHeight?: number;
-	maxWidth?: number;
-	maxHeight?: number;
-	handles?: ResizeHandle[];
-	handleSize?: number;
-	handleOffset?: number;
-	invisibleHandles?: boolean;
+	minWidth?: MaybeGetter<number>;
+	minHeight?: MaybeGetter<number>;
+	maxWidth?: MaybeGetter<number>;
+	maxHeight?: MaybeGetter<number>;
+	handles?: MaybeGetter<ResizeHandle[]>;
+	handleSize?: MaybeGetter<number>;
+	handleOffset?: MaybeGetter<number>;
+	invisibleHandles?: MaybeGetter<boolean>;
 	onResizeStart?: () => void;
 	onResizeEnd?: () => void;
-	currentPosition?: () => { x: number; y: number };
-	onPositionChange?: (x: number, y: number) => void;
+	onPositionChange?: (pos: { x: number; y: number }) => void;
+	position?: { x: number; y: number };
 }
 
 const cursors: Record<ResizeHandle, string> = {
@@ -32,9 +33,9 @@ function getCursorForHandle(handle: ResizeHandle): string {
 	return cursors[handle];
 }
 
-function getHandleStyles(handle: ResizeHandle, size = 8, offset = 4, invisible = false): string {
+function getHandleStyles(handle: ResizeHandle, size = 8, offset = 8, showHandles = false): string {
 	const base = `position: absolute; cursor: ${getCursorForHandle(handle)};`;
-	const bg = invisible ? 'background: rgba(255,0,0,0.3);' : 'background: transparent;';
+	const bg = showHandles ? 'background: rgba(255,0,0,0.3);' : 'background: transparent;';
 	const dimensions = `width: ${size}px; height: ${size}px;`;
 
 	const positioning = (() => {
@@ -63,13 +64,21 @@ function getHandleStyles(handle: ResizeHandle, size = 8, offset = 4, invisible =
 	return base + bg + dimensions + positioning;
 }
 
-function applyConstraints(width: number, height: number, options: ResizeOptions) {
-	const { minWidth, minHeight, maxWidth, maxHeight } = options;
+function applyConstraints(
+	width: number,
+	height: number,
+	constraints: {
+		minWidth?: number;
+		minHeight?: number;
+		maxWidth?: number;
+		maxHeight?: number;
+	}
+) {
+	const { minWidth, minHeight, maxWidth, maxHeight } = constraints;
 
 	let constrainedWidth = width;
 	let constrainedHeight = height;
 
-	// Only apply constraints if explicitly set
 	if (minWidth !== undefined) {
 		constrainedWidth = Math.max(minWidth, constrainedWidth);
 	}
@@ -128,19 +137,14 @@ function calculatePositionAdjustment(
 }
 
 function resize(options: ResizeOptions = {}): Attachment<HTMLElement> {
-	const {
-		handles = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'],
-		onResizeEnd,
-		currentPosition,
-		onPositionChange,
-		onResizeStart
-	} = options;
-
 	return (element) => {
 		const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 		if (isMobile) {
 			return () => {};
 		}
+
+		const { onResizeStart, onResizeEnd, onPositionChange } = options;
+		const position = options.position;
 
 		let isResizing = false;
 		let currentHandle: ResizeHandle;
@@ -150,17 +154,30 @@ function resize(options: ResizeOptions = {}): Attachment<HTMLElement> {
 		let startHeight = 0;
 		let startDragX = 0;
 		let startDragY = 0;
-
-		// Create handles
 		const handleElements: HTMLElement[] = [];
+
+		const handles = extract<ResizeHandle[]>(options.handles, [
+			'n',
+			's',
+			'e',
+			'w',
+			'ne',
+			'nw',
+			'se',
+			'sw'
+		]);
+		const handleSize = extract(options.handleSize);
+		const handleOffset = extract(options.handleOffset);
+		const invisibleHandles = extract(options.invisibleHandles);
+
 		handles.forEach((handle) => {
 			const handleElement = document.createElement('div');
-			handleElement.className = `resize-handle resize-${handle}`;
+			handleElement.setAttribute('data-resize-handle', handle);
 			handleElement.style.cssText = getHandleStyles(
 				handle,
-				options.handleSize,
-				options.handleOffset,
-				options.invisibleHandles
+				handleSize,
+				handleOffset,
+				invisibleHandles
 			);
 
 			handleElement.addEventListener('mousedown', (ev) => {
@@ -172,24 +189,27 @@ function resize(options: ResizeOptions = {}): Attachment<HTMLElement> {
 			handleElement.addEventListener('touchstart', (ev) => {
 				ev.preventDefault();
 				ev.stopPropagation();
-				const touch = ev.touches[0];
-				const mouseEvent = new MouseEvent('mousedown', {
-					clientX: touch.clientX,
-					clientY: touch.clientY,
-					bubbles: true
-				});
-				startResize(mouseEvent, handle);
+				startResize(ev, handle);
 			});
 
 			element.appendChild(handleElement);
 			handleElements.push(handleElement);
 		});
 
-		function startResize(ev: MouseEvent, handle: ResizeHandle) {
+		function getEventCoordinates(ev: MouseEvent | TouchEvent): [number, number] {
+			if (ev instanceof MouseEvent) {
+				return [ev.clientX, ev.clientY];
+			} else {
+				const touch = ev.touches[0];
+				return [touch.clientX, touch.clientY];
+			}
+		}
+
+		function startResize(ev: MouseEvent | TouchEvent, handle: ResizeHandle) {
 			isResizing = true;
 			currentHandle = handle;
-			startX = ev.clientX;
-			startY = ev.clientY;
+
+			[startX, startY] = getEventCoordinates(ev);
 
 			onResizeStart?.();
 
@@ -197,7 +217,7 @@ function resize(options: ResizeOptions = {}): Attachment<HTMLElement> {
 			startWidth = rect.width;
 			startHeight = rect.height;
 
-			const pos = currentPosition?.() ?? { x: 0, y: 0 };
+			const pos = position ?? { x: 0, y: 0 };
 			startDragX = pos.x;
 			startDragY = pos.y;
 
@@ -235,20 +255,25 @@ function resize(options: ResizeOptions = {}): Attachment<HTMLElement> {
 				startHeight
 			);
 
+			const constraintOptions = {
+				minWidth: extract(options.minWidth),
+				minHeight: extract(options.minHeight),
+				maxWidth: extract(options.maxWidth),
+				maxHeight: extract(options.maxHeight)
+			};
+
 			const { width: constrainedWidth, height: constrainedHeight } = applyConstraints(
 				width,
 				height,
-				options
+				constraintOptions
 			);
 
 			const actualWidthChange = constrainedWidth - startWidth;
 			const actualHeightChange = constrainedHeight - startHeight;
 
-			// Apply size changes
 			element.style.setProperty('width', constrainedWidth + 'px');
 			element.style.setProperty('height', constrainedHeight + 'px');
 
-			// Update position if needed
 			if (currentHandle.includes('w') || currentHandle.includes('n')) {
 				const { x, y } = calculatePositionAdjustment(
 					currentHandle,
@@ -257,7 +282,8 @@ function resize(options: ResizeOptions = {}): Attachment<HTMLElement> {
 					actualWidthChange,
 					actualHeightChange
 				);
-				onPositionChange?.(x, y);
+
+				onPositionChange?.({ x, y });
 			}
 		}
 
@@ -273,7 +299,6 @@ function resize(options: ResizeOptions = {}): Attachment<HTMLElement> {
 			onResizeEnd?.();
 		}
 
-		// Cleanup function
 		return () => {
 			handleElements.forEach((handle) => handle.remove());
 		};

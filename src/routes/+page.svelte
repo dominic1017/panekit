@@ -4,5 +4,5 @@
 
 <Pane.Root class="rounded-md border border-gray-700 shadow-md">
 	<Pane.Handle>Handle</Pane.Handle>
-	<Pane.Content>Content</Pane.Content>
+	<Pane.Content class="h-full w-full">Content</Pane.Content>
 </Pane.Root>

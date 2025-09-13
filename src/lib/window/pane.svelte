@@ -13,6 +13,7 @@
 	import type { WithChildren, WithElementRef, HTMLDivAttributes } from '../utils.js';
 	import { resize } from '$lib/resize.svelte.js';
 	import { onMount } from 'svelte';
+	import { portal } from '$lib/portal.svelte';
 
 	type Props = WithChildren<WithElementRef<HTMLDivAttributes, HTMLDivElement>> & {
 		size?: { width: number; height: number };
@@ -28,6 +29,7 @@
 	let thisPane = $state<PaneState>();
 	let handleRef = $state<HTMLDivElement | null>(null);
 	let contentRef = $state<HTMLDivElement | null>(null);
+	let portalTargetRef = $state<HTMLElement | null>(null);
 	let ready = $state(false);
 	let centerPos =
 		'window' in globalThis
@@ -42,6 +44,7 @@
 			wm.addPane(() => thisPane!);
 			handleRef = ref.querySelector('[data-pane-handle]');
 			contentRef = ref.querySelector('[data-pane-content]');
+			portalTargetRef = document.querySelector('[data-pane-portal-target]');
 			ready = true;
 		}
 	});
@@ -82,6 +85,7 @@
 	tabindex="-1"
 	data-pane=""
 	style={`width: ${size.width}px; height: ${size.height}px;`}
+	{@attach portal({ target: portalTargetRef })}
 	{@attach draggable(() => [
 		positionComp,
 		eventsComp,

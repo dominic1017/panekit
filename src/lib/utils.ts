@@ -7,3 +7,5 @@ export type WithChildren<Props = unknown> = Props & {
 };
 
 export type HTMLDivAttributes = HTMLAttributes<HTMLDivElement>;
+
+export type Nullish = null | undefined;

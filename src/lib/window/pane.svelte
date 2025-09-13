@@ -6,7 +6,7 @@
 		let current: HTMLElement | null = element;
 
 		while (current && current.tagName !== document.documentElement.tagName) {
-			const target = current.querySelector('[data-pane-portal-target]');
+			const target = current.querySelector('[data-pane-portal-target=""]');
 			if (target && target instanceof HTMLElement) {
 				return target;
 			}

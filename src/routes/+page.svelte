@@ -8,5 +8,5 @@
 </Pane.Root>
 
 <div id="some-important-container">
-	<Pane.PortalTarget />
+	<Pane.PortalTarget portalId="haiya" />
 </div>

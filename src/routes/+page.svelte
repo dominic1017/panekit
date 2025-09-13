@@ -6,3 +6,7 @@
 	<Pane.Handle>Handle</Pane.Handle>
 	<Pane.Content class="h-full w-full">Content</Pane.Content>
 </Pane.Root>
+
+<div id="some-important-container">
+	<Pane.PortalTarget />
+</div>

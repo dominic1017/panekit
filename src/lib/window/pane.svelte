@@ -1,3 +1,22 @@
+<script module>
+	function findPortalTarget(element: HTMLElement, portalId?: string) {
+		if (portalId)
+			return document.querySelector<HTMLElement>(`[data-pane-portal-target="${portalId}"]`);
+
+		let current: HTMLElement | null = element;
+
+		while (current && current.tagName !== document.documentElement.tagName) {
+			const target = current.querySelector('[data-pane-portal-target]');
+			if (target && target instanceof HTMLElement) {
+				return target;
+			}
+			current = current.parentElement;
+		}
+
+		return null;
+	}
+</script>
+
 <script lang="ts">
 	import {
 		Compartment,
@@ -17,12 +36,14 @@
 
 	type Props = WithChildren<WithElementRef<HTMLDivAttributes, HTMLDivElement>> & {
 		size?: { width: number; height: number };
+		portalId?: string;
 	};
 
 	let {
 		ref = $bindable(null),
 		children,
 		size = { width: 200, height: 200 },
+		portalId,
 		...restProps
 	}: Props = $props();
 
@@ -44,9 +65,10 @@
 			wm.addPane(() => thisPane!);
 			handleRef = ref.querySelector('[data-pane-handle]');
 			contentRef = ref.querySelector('[data-pane-content]');
-			portalTargetRef = document.querySelector('[data-pane-portal-target]');
-			ready = true;
+			portalTargetRef = findPortalTarget(ref, portalId);
 		}
+
+		ready = true;
 	});
 
 	$effect(() => {

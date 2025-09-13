@@ -1,5 +1,6 @@
 import * as Pane from './window/index.js';
 export { Pane };
+export * from './window/index.js';
 
 export { default as PanekitProvider } from './panekit-provider.svelte';
 

@@ -1,4 +1,4 @@
-<script module>
+<script module lang="ts">
 	function findPortalTarget(element: HTMLElement, portalId?: string) {
 		if (portalId)
 			return document.querySelector<HTMLElement>(`[data-pane-portal-target="${portalId}"]`);
@@ -31,7 +31,7 @@
 	import type { ControlsPluginData } from '../types.js';
 	import type { WithChildren, WithElementRef, HTMLDivAttributes } from '../utils.js';
 	import { resize } from '$lib/resize.svelte.js';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { portal } from '$lib/portal.svelte';
 
 	type Props = WithChildren<WithElementRef<HTMLDivAttributes, HTMLDivElement>> & {
@@ -65,7 +65,9 @@
 			wm.addPane(() => thisPane!);
 			handleRef = ref.querySelector('[data-pane-handle]');
 			contentRef = ref.querySelector('[data-pane-content]');
-			portalTargetRef = findPortalTarget(ref, portalId);
+
+			// hack so that the portalTarget attachment runs first.
+			tick().then(() => ref && (portalTargetRef = findPortalTarget(ref, portalId)));
 		}
 
 		ready = true;

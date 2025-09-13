@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Pane } from '$lib/index.js';
+	import { panePortalTarget } from '$lib/window/pane-portal-target.svelte';
 </script>
 
 <Pane.Root class="rounded-md border border-gray-700 shadow-md">
@@ -7,6 +8,4 @@
 	<Pane.Content class="h-full w-full">Content</Pane.Content>
 </Pane.Root>
 
-<div id="some-important-container">
-	<Pane.PortalTarget portalId="haiya" />
-</div>
+<div {@attach panePortalTarget()}>My Target Yay</div>

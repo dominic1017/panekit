@@ -1,14 +1,14 @@
 {
 	"name": "panekit",
-	"description": "Window Manager toolkit for Svelte 5",
-	"version": "0.1.0",
+	"description": "headless window manager toolkit for Svelte 5",
+	"version": "0.2.0",
 	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev --host",
 		"build": "vite build && npm run prepack",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
-		"prepack": "svelte-kit sync && svelte-package && npx @tailwindcss/cli -i index.css -o dist/index.css --cwd ./src/lib/ && publint",
+		"prepack": "svelte-kit sync && svelte-package && npx @tailwindcss/cli -i index.css -o ../../dist/index.css --minify --cwd ./src/lib/ && publint",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
@@ -16,15 +16,7 @@
 	},
 	"files": [
 		"dist",
-		"!dist/**/*.test.*",
-		"!dist/**/*.spec.*",
-		"!dist/assets",
-		"!dist/idex.css",
-		"src/lib",
-		"!src/lib/index.css",
-		"!src/lib/assets",
-		"!src/lib/**/*.test.*",
-		"!src/lib/**/*.spec.*"
+		"src/lib"
 	],
 	"sideEffects": [
 		"**/*.css"

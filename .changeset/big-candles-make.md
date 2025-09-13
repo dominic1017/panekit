@@ -1,5 +1,0 @@
----
-'panekit': minor
----
-
-Implements Changesets

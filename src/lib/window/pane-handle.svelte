@@ -6,6 +6,6 @@
 	let { ref = $bindable(null), children, ...restProps }: Props = $props();
 </script>
 
-<div {...restProps} data-pane-handle="" bind:this={ref}>
+<div data-pane-handle="" bind:this={ref} {...restProps}>
 	{@render children?.()}
 </div>

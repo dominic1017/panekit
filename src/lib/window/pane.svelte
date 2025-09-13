@@ -29,7 +29,7 @@
 	} from '@neodrag/svelte';
 	import { usePM, PaneState } from '../pane-manager.svelte.js';
 	import type { ControlsPluginData } from '../types.js';
-	import type { WithChildren, WithElementRef, HTMLDivAttributes } from '../utils.js';
+	import { type WithChildren, type WithElementRef, type HTMLDivAttributes, cn } from '../utils.js';
 	import { resize } from '$lib/resize.svelte.js';
 	import { onMount, tick } from 'svelte';
 	import { portal } from '$lib/portal.svelte';
@@ -44,6 +44,7 @@
 		children,
 		size = { width: 200, height: 200 },
 		portalId,
+		class: className,
 		...restProps
 	}: Props = $props();
 
@@ -103,7 +104,7 @@
 </script>
 
 <div
-	{...restProps}
+	class={cn('flex flex-col', className)}
 	hidden={!ready}
 	role="dialog"
 	tabindex="-1"
@@ -135,6 +136,7 @@
 		ref?.focus();
 	}}
 	bind:this={ref}
+	{...restProps}
 >
 	{@render children?.()}
 </div>

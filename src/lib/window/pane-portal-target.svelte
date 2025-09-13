@@ -23,4 +23,4 @@
 	let { ref = $bindable(null), portalId = '', ...restProps }: Props = $props();
 </script>
 
-<div {...restProps} data-pane-portal-target={portalId} bind:this={ref}></div>
+<div data-pane-portal-target={portalId} bind:this={ref} {...restProps}></div>

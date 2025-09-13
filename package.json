@@ -8,7 +8,7 @@
 		"build": "vite build && npm run prepack",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
-		"prepack": "svelte-kit sync && svelte-package && publint",
+		"prepack": "svelte-kit sync && svelte-package && npx @tailwindcss/cli -i index.css -o dist/index.css --cwd ./src/lib/ && publint",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
@@ -18,7 +18,10 @@
 		"dist",
 		"!dist/**/*.test.*",
 		"!dist/**/*.spec.*",
+		"!dist/assets",
+		"!dist/idex.css",
 		"src/lib",
+		"!src/lib/index.css",
 		"!src/lib/assets",
 		"!src/lib/**/*.test.*",
 		"!src/lib/**/*.spec.*"
@@ -45,6 +48,7 @@
 		"@sveltejs/kit": "^2.22.0",
 		"@sveltejs/package": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^6.0.0",
+		"@tailwindcss/cli": "^4.1.13",
 		"@tailwindcss/vite": "^4.0.0",
 		"eslint": "^9.18.0",
 		"eslint-config-prettier": "^10.0.1",
@@ -73,6 +77,8 @@
 	],
 	"dependencies": {
 		"@neodrag/svelte": "^3.0.0-next.8",
-		"runed": "^0.31.1"
+		"clsx": "^2.1.1",
+		"runed": "^0.31.1",
+		"tailwind-merge": "^3.3.1"
 	}
 }

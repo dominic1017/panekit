@@ -27,48 +27,62 @@
 		instances,
 		position
 	} from '@neodrag/svelte';
-	import { usePM, PaneState } from '../pane-manager.svelte.js';
+	import { usePM, PaneState, type DragModifier } from '../pane-manager.svelte.js';
 	import type { ControlsPluginData } from '../types.js';
 	import { type WithChildren, type WithElementRef, type HTMLDivAttributes, cn } from '../utils.js';
 	import { resize } from '$lib/resize.svelte.js';
-	import { onMount, tick } from 'svelte';
+	import { onMount, tick, untrack } from 'svelte';
 	import { portal } from '$lib/portal.svelte';
 
 	type Props = WithChildren<WithElementRef<HTMLDivAttributes, HTMLDivElement>> & {
 		size?: { width: number; height: number };
+		paneId?: string;
 		portalId?: string;
+		dragModifier?: DragModifier;
 	};
 
 	let {
 		ref = $bindable(null),
 		children,
 		size = { width: 200, height: 200 },
+		paneId,
 		portalId,
+		dragModifier,
 		class: className,
 		...restProps
 	}: Props = $props();
 
-	let thisPane = $state<PaneState>();
+	// refs
 	let handleRef = $state<HTMLDivElement | null>(null);
 	let contentRef = $state<HTMLDivElement | null>(null);
 	let portalTargetRef = $state<HTMLElement | null>(null);
-	let ready = $state(false);
-	let centerPos =
-		'window' in globalThis
-			? { x: (window.innerWidth - size.width) / 2, y: (window.innerHeight - size.height) / 2 }
-			: null;
 
+	let ready = $state(false);
+	let modifierHeld = $state(false);
+	let isDragging = $state(false);
+
+	// calculate center the position based on the portal
+	let centerPos = $derived.by(() => {
+		if (portalTargetRef) {
+			return {
+				x: (portalTargetRef.clientWidth - untrack(() => size.width)) / 2,
+				y: (portalTargetRef.clientHeight - untrack(() => size.height)) / 2
+			};
+		}
+	});
+
+	let thisPane = new PaneState({ id: paneId, dragModifier });
 	const wm = usePM();
 
 	onMount(() => {
 		if (ref) {
-			thisPane = new PaneState({ ref });
+			thisPane.ref = ref;
 			wm.addPane(() => thisPane!);
 			handleRef = ref.querySelector('[data-pane-handle]');
 			contentRef = ref.querySelector('[data-pane-content]');
 
 			// hack so that the portalTarget attachment runs first.
-			tick().then(() => ref && (portalTargetRef = findPortalTarget(ref, portalId)));
+			tick().then(() => (portalTargetRef = findPortalTarget(ref!, portalId)));
 		}
 
 		ready = true;
@@ -76,7 +90,7 @@
 
 	$effect(() => {
 		if (ref && thisPane) {
-			ref.style.zIndex = thisPane.focused ? '100000' : '10';
+			ref.style.zIndex = thisPane.focused ? '1000' : '10';
 		}
 	});
 
@@ -87,9 +101,26 @@
 	});
 	const eventsComp = Compartment.of(() =>
 		events({
+			onDragStart() {
+				isDragging = true;
+			},
 			onDrag: (data) => {
 				elementPosition = data.offset;
+			},
+			onDragEnd() {
+				isDragging = false;
 			}
+		})
+	);
+	const controlsComp = Compartment.of(() =>
+		controls({
+			allow: (root) => {
+				if (modifierHeld) {
+					return ControlFrom.elements([ref])(root);
+				}
+				return ControlFrom.elements([handleRef])(root);
+			},
+			block: ControlFrom.elements([contentRef])
 		})
 	);
 
@@ -103,22 +134,29 @@
 	}
 </script>
 
+<svelte:window
+	onkeydown={(ev) => {
+		if (thisPane && ev[thisPane.dragModifier]) {
+			modifierHeld = true;
+		}
+	}}
+	onkeyup={(ev) => {
+		if (thisPane && !ev[thisPane.dragModifier]) {
+			modifierHeld = false;
+		}
+	}}
+/>
+
 <div
-	class={cn('flex flex-col', className)}
+	class={cn('absolute flex flex-col', isDragging && 'cursor-grabbing', className)}
 	hidden={!ready}
 	role="dialog"
 	tabindex="-1"
 	data-pane=""
+	data-pane-id={thisPane?.id}
 	style={`width: ${size.width}px; height: ${size.height}px;`}
 	{@attach portal({ target: portalTargetRef })}
-	{@attach draggable(() => [
-		positionComp,
-		eventsComp,
-		controls({
-			allow: ControlFrom.elements([handleRef]),
-			block: ControlFrom.elements([contentRef])
-		})
-	])}
+	{@attach draggable(() => [positionComp, eventsComp, controlsComp])}
 	{@attach resize({
 		minWidth: size.width,
 		minHeight: size.height,
@@ -130,8 +168,7 @@
 			elementPosition = pos;
 		}
 	})}
-	onmousedown={(e) => {
-		e.stopPropagation();
+	onmousedown={() => {
 		wm.focusPane(thisPane?.id ?? '');
 		ref?.focus();
 	}}

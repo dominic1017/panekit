@@ -11,7 +11,7 @@
 </script>
 
 <script lang="ts">
-	import type { HTMLDivAttributes } from '$lib/utils.js';
+	import { cn, type HTMLDivAttributes } from '$lib/utils.js';
 	import type { WithElementRef } from '$lib/utils.js';
 	import type { WithChildren } from '$lib/utils.js';
 	import type { Attachment } from 'svelte/attachments';
@@ -20,7 +20,19 @@
 		portalId?: string;
 	};
 
-	let { ref = $bindable(null), portalId = '', ...restProps }: Props = $props();
+	let { ref = $bindable(null), portalId = '', class: className, ...restProps }: Props = $props();
+
+	$effect(() => {
+		if (ref && ref.parentElement) {
+			ref.parentElement.style.position = 'absolute';
+			ref.parentElement.style.zIndex = '1001';
+		}
+	});
 </script>
 
-<div data-pane-portal-target={portalId} bind:this={ref} {...restProps}></div>
+<div
+	class={cn('h-full w-full', className)}
+	data-pane-portal-target={portalId}
+	bind:this={ref}
+	{...restProps}
+></div>

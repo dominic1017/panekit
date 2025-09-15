@@ -1,5 +1,11 @@
 # panekit
 
+## 0.6.0
+
+### Minor Changes
+
+- 89a72eb: Pane portal target should not have children prop
+
 ## 0.5.0
 
 ### Minor Changes

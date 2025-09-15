@@ -1,16 +1,20 @@
 <script lang="ts">
-	import { Pane } from '$lib/index.js';
-	import PanePortalTarget from '$lib/window/pane-portal-target.svelte';
+	import { Pane, PanekitProvider } from '$lib/index.js';
 </script>
 
-<Pane.Root class="rounded-md border border-gray-700 bg-white shadow-md ">
-	<Pane.Handle>Handle</Pane.Handle>
-	<Pane.Content>content</Pane.Content>
-</Pane.Root>
+<PanekitProvider>
+	<div class="flex h-screen">
+		<div class="flex-1">
+			<Pane.PortalTarget portalId="left-panel" />
+		</div>
+		<div class="flex-1">
+			<Pane.PortalTarget portalId="right-panel" />
+		</div>
+	</div>
 
-<Pane.Root dragModifier="shiftKey" class="rounded-md border border-gray-700 bg-white shadow-md ">
-	<Pane.Handle>Shift Handle</Pane.Handle>
-	<Pane.Content>content</Pane.Content>
-</Pane.Root>
-
-<PanePortalTarget class="relative -z-10 m-10 h-96 w-96 border border-red-500 bg-white" />
+	<!-- This pane will render in the right panel -->
+	<Pane.Root portalId="right-panel">
+		<Pane.Handle>Right Side Window</Pane.Handle>
+		<Pane.Content>Content here</Pane.Content>
+	</Pane.Root>
+</PanekitProvider>

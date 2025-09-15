@@ -13,21 +13,13 @@
 <script lang="ts">
 	import { cn, type HTMLDivAttributes } from '$lib/utils.js';
 	import type { WithElementRef } from '$lib/utils.js';
-	import type { WithChildren } from '$lib/utils.js';
 	import type { Attachment } from 'svelte/attachments';
 
-	type Props = WithChildren<WithElementRef<HTMLDivAttributes, HTMLDivElement>> & {
+	type Props = WithElementRef<HTMLDivAttributes, HTMLDivElement> & {
 		portalId?: string;
 	};
 
 	let { ref = $bindable(null), portalId = '', class: className, ...restProps }: Props = $props();
-
-	$effect(() => {
-		if (ref && ref.parentElement) {
-			ref.parentElement.style.position = 'absolute';
-			ref.parentElement.style.zIndex = '1001';
-		}
-	});
 </script>
 
 <div

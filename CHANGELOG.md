@@ -1,5 +1,12 @@
 # panekit
 
+## 0.7.0
+
+### Minor Changes
+
+- 725cedf: Add prop to constrain panes to portal bounds
+- 9628151: Add constrainTo prop which allows you to constrain a window to an html element of hoice
+
 ## 0.6.0
 
 ### Minor Changes

@@ -19,6 +19,8 @@
 
 <script lang="ts">
 	import {
+		bounds,
+		BoundsFrom,
 		Compartment,
 		ControlFrom,
 		controls,
@@ -34,11 +36,15 @@
 	import { onMount, tick, untrack } from 'svelte';
 	import { portal } from '$lib/portal.svelte';
 
+	type HTMLElementOrSelector = HTMLElement | string;
+
 	type Props = WithChildren<WithElementRef<HTMLDivAttributes, HTMLDivElement>> & {
 		size?: { width: number; height: number };
 		paneId?: string;
 		portalId?: string;
 		dragModifier?: DragModifier;
+		constrainTo?: HTMLElementOrSelector;
+		constrainToPortal?: boolean;
 	};
 
 	let {
@@ -48,6 +54,8 @@
 		paneId,
 		portalId,
 		dragModifier,
+		constrainToPortal = false,
+		constrainTo,
 		class: className,
 		...restProps
 	}: Props = $props();
@@ -123,6 +131,17 @@
 			block: ControlFrom.elements([contentRef])
 		})
 	);
+	const boundsComp = Compartment.of(() => {
+		if (constrainTo) {
+			if (constrainTo instanceof HTMLElement) {
+				return bounds(BoundsFrom.element(constrainTo));
+			}
+			return bounds(BoundsFrom.selector(constrainTo));
+		}
+		if (portalTargetRef && constrainToPortal) {
+			return bounds(BoundsFrom.element(portalTargetRef));
+		}
+	});
 
 	function recomputeDraggableZones() {
 		if (ref && instances.has(ref)) {
@@ -156,7 +175,7 @@
 	data-pane-id={thisPane?.id}
 	style={`width: ${size.width}px; height: ${size.height}px;`}
 	{@attach portal({ target: portalTargetRef })}
-	{@attach draggable(() => [positionComp, eventsComp, controlsComp])}
+	{@attach draggable(() => [positionComp, eventsComp, controlsComp, boundsComp])}
 	{@attach resize({
 		minWidth: size.width,
 		minHeight: size.height,

